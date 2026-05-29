@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EvaulxMC — Minecraft Network</title>
+<meta name="description" content="EvaulxMC is a competitive Minecraft network featuring Practice, UHC, BedWars, SkyWars, KitPvP and more.">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #06060f;
+  --bg-dark: #0a0a1a;
+  --bg-card: #0f0f24;
+  --bg-card-hover: #14143a;
+  --purple-glow: #7c3aed;
+  --purple-light: #a78bfa;
+  --purple-dim: #4c1d95;
+  --purple-bright: #c4b5fd;
+  --cyan-accent: #22d3ee;
+  --text-primary: #e2e0ff;
+  --text-secondary: #8b87b3;
+  --text-muted: #4a4670;
+  --border-color: rgba(124, 58, 237, 0.15);
+  --border-hover: rgba(124, 58, 237, 0.4);
+  --font-display: 'Orbitron', sans-serif;
+  --font-body: 'Rajdhani', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* CANVAS BACKGROUND */
+#bg-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* NAVIGATION */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 0 2rem;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(6, 6, 15, 0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.3s;
+}
+
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--purple-bright);
+  letter-spacing: 3px;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.nav-logo span {
+  color: var(--cyan-accent);
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  align-items: center;
+}
+
+.nav-links a {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transition: color 0.3s;
+  position: relative;
+  padding: 4px 0;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0; right: 0;
+  height: 2px;
+  background: var(--purple-glow);
+  transform: scaleX(0);
+  transition: transform 0.3s;
+  box-shadow: 0 0 8px var(--purple-glow);
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--purple-bright);
+}
+
+.nav-links a:hover::after,
+.nav-links a.active::after {
+  transform: scaleX(1);
+}
+
+.nav-play {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  padding: 8px 20px;
+  background: var(--purple-glow);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);
+}
+
+.nav-play:hover {
+  background: #8b5cf6;
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.5);
+}
+
+/* HAMBURGER */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+}
+
+.hamburger span {
+  width: 24px;
+  height: 2px;
+  background: var(--text-secondary);
+  transition: all 0.3s;
+}
+
+/* MAIN CONTENT */
+.content {
+  position: relative;
+  z-index: 1;
+}
+
+/* PAGES */
+.page {
+  display: none;
+  min-height: 100vh;
+}
+
+.page.active {
+  display: block;
+}
+
+/* HERO SECTION */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  position: relative;
+}
+
+.hero-badge {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--cyan-accent);
+  background: rgba(34, 211, 238, 0.08);
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  padding: 8px 24px;
+  border-radius: 30px;
+  margin-bottom: 2rem;
+  animation: fadeInDown 0.8s ease;
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 900;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, var(--purple-bright) 0%, var(--cyan-accent) 50%, var(--purple-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+  animation: fadeInUp 1s ease;
+}
+
+.hero-sub {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  margin-top: 1rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: 300;
+  animation: fadeInUp 1s ease 0.2s both;
+}
+
+.hero-ip {
+  margin-top: 2.5rem;
+  animation: fadeInUp 1s ease 0.4s both;
+}
+
+.hero-ip-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 14px 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.hero-ip-box:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.15);
+}
+
+.hero-ip-box .ip {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--purple-bright);
+  letter-spacing: 2px;
+}
+
+.hero-ip-box .copy-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 3rem;
+  margin-top: 3rem;
+  animation: fadeInUp 1s ease 0.6s both;
+}
+
+.hero-stat {
+  text-align: center;
+}
+
+.hero-stat-num {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--purple-bright);
+}
+
+.hero-stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+
+.hero-scroll {
+  position: absolute;
+  bottom: 2rem;
+  animation: bounce 2s infinite;
+}
+
+.hero-scroll svg {
+  width: 24px;
+  height: 24px;
+  stroke: var(--text-muted);
+}
+
+/* SECTION */
+.section {
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.section-tag {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--purple-glow);
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.section-desc {
+  color: var(--text-secondary);
+  margin-top: 0.8rem;
+  font-size: 1.05rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* GAME MODE CARDS */
+.modes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.mode-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 2rem;
+  transition: all 0.4s;
+  position: relative;
+  overflow: hidden;
+}
+
+.mode-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 3px;
+  background: linear-gradient(90deg, var(--purple-glow), var(--cyan-accent));
+  transform: scaleX(0);
+  transition: transform 0.4s;
+  transform-origin: left;
+}
+
+.mode-card:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover);
+  transform: translateY(-4px);
+}
+
+.mode-card:hover::before {
+  transform: scaleX(1);
+}
+
+.mode-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.mode-name {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--purple-bright);
+  margin-bottom: 0.5rem;
+}
+
+.mode-desc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.mode-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.mode-tag {
+  font-size: 0.7rem;
+  padding: 4px 10px;
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(124, 58, 237, 0.15);
+  border-radius: 20px;
+  color: var(--purple-light);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* FEATURES */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.feature-item {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.feature-item:hover {
+  border-color: var(--border-hover);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.feature-title {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--purple-bright);
+  margin-bottom: 0.5rem;
+}
+
+.feature-desc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* RULES PAGE */
+.rules-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.rule-category {
+  margin-bottom: 2.5rem;
+}
+
+.rule-category-title {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--purple-bright);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.rule-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(124, 58, 237, 0.05);
+}
+
+.rule-num {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--purple-glow);
+  min-width: 30px;
+}
+
+.rule-text {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.rule-severity {
+  font-size: 0.65rem;
+  padding: 3px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  margin-left: auto;
+  white-space: nowrap;
+  height: fit-content;
+}
+
+.severity-warn { background: rgba(250, 204, 21, 0.1); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.2); }
+.severity-ban { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+.severity-perm { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+/* STAFF PAGE */
+.staff-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.staff-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.staff-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-3px);
+}
+
+.staff-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  background: linear-gradient(135deg, var(--purple-dim), var(--bg-card));
+  border: 2px solid var(--purple-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--purple-bright);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
+  overflow: hidden;
+}
+
+.staff-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+
+.staff-name {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--text-primary);
+}
+
+.staff-role {
+  font-size: 0.75rem;
+  color: var(--purple-light);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.staff-section-title {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  margin-top: 3rem;
+}
+
+/* STORE PAGE */
+.store-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.store-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.store-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-3px);
+}
+
+.store-card.featured {
+  border-color: var(--purple-glow);
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.15);
+}
+
+.store-card-badge {
+  background: linear-gradient(90deg, var(--purple-glow), var(--cyan-accent));
+  padding: 6px 16px;
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #fff;
+  text-align: center;
+}
+
+.store-card-body {
+  padding: 2rem;
+}
+
+.store-rank-name {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.store-price {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--purple-bright);
+  margin: 1rem 0;
+}
+
+.store-price span {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.store-perks {
+  list-style: none;
+  margin: 1rem 0 1.5rem;
+}
+
+.store-perks li {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  padding: 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.store-perks li::before {
+  content: '✦';
+  color: var(--purple-glow);
+  font-size: 0.7rem;
+}
+
+.store-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  border-radius: 4px;
+  color: var(--purple-bright);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s;
+  text-decoration: none;
+}
+
+.store-btn:hover {
+  background: var(--purple-glow);
+  color: #fff;
+}
+
+/* FOOTER */
+.footer {
+  padding: 3rem 2rem;
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+  margin-top: 4rem;
+}
+
+.footer-logo {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--purple-bright);
+  text-transform: uppercase;
+}
+
+.footer-text {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1rem;
+  list-style: none;
+}
+
+.footer-links a {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: color 0.3s;
+}
+
+.footer-links a:hover { color: var(--purple-bright); }
+
+/* COPY TOAST */
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--purple-glow);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  z-index: 999;
+  transition: transform 0.4s ease;
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.4);
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* PAGE TOP SPACER */
+.page-top {
+  padding-top: 120px;
+}
+
+/* DIVIDER */
+.glow-line {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--purple-glow), var(--cyan-accent));
+  margin: 1rem auto;
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.3);
+}
+
+/* ANIMATIONS */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .nav-links.open {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 70px;
+    left: 0; right: 0;
+    background: rgba(6, 6, 15, 0.95);
+    backdrop-filter: blur(20px);
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+    gap: 1rem;
+  }
+  .hamburger { display: flex; }
+  .hero-stats { gap: 1.5rem; }
+  .hero h1 { letter-spacing: 4px; }
+  .section { padding: 4rem 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAVIGATION -->
+<nav class="nav">
+  <a href="#" class="nav-logo" onclick="showPage('home')">Evaulx<span>MC</span></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#" class="active" data-page="home" onclick="showPage('home')">Home</a></li>
+    <li><a href="#" data-page="modes" onclick="showPage('modes')">Game Modes</a></li>
+    <li><a href="#" data-page="rules" onclick="showPage('rules')">Rules</a></li>
+    <li><a href="#" data-page="staff" onclick="showPage('staff')">Staff</a></li>
+    <li><a href="#" data-page="store" onclick="showPage('store')">Store</a></li>
+  </ul>
+  <a href="#" class="nav-play" onclick="copyIP(event)">PLAY NOW</a>
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="content">
+
+  <!-- ==================== HOME PAGE ==================== -->
+  <div class="page active" id="page-home">
+    <section class="hero">
+      <div class="hero-badge">Season 1 — Now Live</div>
+      <h1>EvaulxMC</h1>
+      <p class="hero-sub">The Ultimate Minecraft Network</p>
+      <div class="hero-ip">
+        <div class="hero-ip-box" onclick="copyIP(event)">
+          <span class="ip">play.evaulxmc.net</span>
+          <span class="copy-hint">Click to copy</span>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-num">5</div>
+          <div class="hero-stat-label">Game Modes</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">1.20.4</div>
+          <div class="hero-stat-label">Version</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">24/7</div>
+          <div class="hero-stat-label">Uptime</div>
+        </div>
+      </div>
+      <div class="hero-scroll">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      </div>
+    </section>
+
+    <!-- FEATURED MODES -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-tag">What We Offer</div>
+        <h2 class="section-title">Game Modes</h2>
+        <div class="glow-line"></div>
+        <p class="section-desc">Five unique competitive experiences, each with custom plugins and dedicated servers.</p>
+      </div>
+      <div class="modes-grid">
+        <div class="mode-card">
+          <div class="mode-icon">⚔️</div>
+          <h3 class="mode-name">Practice</h3>
+          <p class="mode-desc">Sharpen your PvP skills with unranked and ranked duels. Multiple kits, custom arenas, and an ELO ranking system.</p>
+          <div class="mode-tags"><span class="mode-tag">Ranked</span><span class="mode-tag">1v1</span><span class="mode-tag">Competitive</span></div>
+        </div>
+        <div class="mode-card">
+          <div class="mode-icon">💀</div>
+          <h3 class="mode-name">UHC</h3>
+          <p class="mode-desc">Ultra Hardcore survival. No natural regeneration. Mine, craft, and fight to be the last player standing.</p>
+          <div class="mode-tags"><span class="mode-tag">Survival</span><span class="mode-tag">FFA</span><span class="mode-tag">Teams</span></div>
+        </div>
+        <div class="mode-card">
+          <div class="mode-icon">🛏️</div>
+          <h3 class="mode-name">BedWars</h3>
+          <p class="mode-desc">Protect your bed, destroy others. Collect resources, buy upgrades, and dominate the battlefield.</p>
+          <div class="mode-tags"><span class="mode-tag">Teams</span><span class="mode-tag">Strategy</span><span class="mode-tag">PvP</span></div>
+        </div>
+        <div class="mode-card">
+          <div class="mode-icon">🏝️</div>
+          <h3 class="mode-name">SkyWars</h3>
+          <p class="mode-desc">Spawn on floating islands, loot chests, and battle to survive. Fast-paced action every round.</p>
+          <div class="mode-tags"><span class="mode-tag">Solo</span><span class="mode-tag">Duos</span><span class="mode-tag">Fast</span></div>
+        </div>
+        <div class="mode-card">
+          <div class="mode-icon">🗡️</div>
+          <h3 class="mode-name">KitPvP</h3>
+          <p class="mode-desc">Pick a kit, jump into the arena, and fight. Earn coins, unlock new kits, and climb the leaderboard.</p>
+          <div class="mode-tags"><span class="mode-tag">FFA</span><span class="mode-tag">Kits</span><span class="mode-tag">Casual</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-tag">Why EvaulxMC</div>
+        <h2 class="section-title">Built Different</h2>
+        <div class="glow-line"></div>
+      </div>
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-icon">🔌</div>
+          <h3 class="feature-title">Custom Plugins</h3>
+          <p class="feature-desc">Every feature is built from scratch. No bloated public plugins — just clean, optimised code.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">⚡</div>
+          <h3 class="feature-title">Low Latency</h3>
+          <p class="feature-desc">Dedicated hardware with optimised networking for the smoothest possible gameplay.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🛡️</div>
+          <h3 class="feature-title">Anti-Cheat</h3>
+          <p class="feature-desc">Advanced detection keeping the server clean so you can focus on fair competition.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🏆</div>
+          <h3 class="feature-title">Ranked System</h3>
+          <p class="feature-desc">ELO-based rankings, seasonal leaderboards, and rewards for top players.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ==================== GAME MODES PAGE ==================== -->
+  <div class="page" id="page-modes">
+    <div class="page-top">
+      <section class="section">
+        <div class="section-header">
+          <div class="section-tag">All Modes</div>
+          <h2 class="section-title">Game Modes</h2>
+          <div class="glow-line"></div>
+          <p class="section-desc">Explore every game mode available on EvaulxMC.</p>
+        </div>
+
+        <div class="modes-grid">
+          <div class="mode-card">
+            <div class="mode-icon">⚔️</div>
+            <h3 class="mode-name">Practice</h3>
+            <p class="mode-desc">The ultimate PvP training ground. Choose from multiple kits including Nodebuff, Sumo, Boxing, Gapple, Combo, and more. Play unranked to warm up or dive into ranked matches with our ELO system. Private arenas and party duels available.</p>
+            <div class="mode-tags"><span class="mode-tag">Ranked</span><span class="mode-tag">Unranked</span><span class="mode-tag">1v1</span><span class="mode-tag">Party</span></div>
+          </div>
+          <div class="mode-card">
+            <div class="mode-icon">💀</div>
+            <h3 class="mode-name">UHC</h3>
+            <p class="mode-desc">Ultra Hardcore at its finest. Natural health regeneration is disabled — golden apples and potions are your lifeline. Scheduled matches with FFA and team modes. Custom world generation, scenarios, and border shrink mechanics.</p>
+            <div class="mode-tags"><span class="mode-tag">Scheduled</span><span class="mode-tag">FFA</span><span class="mode-tag">Teams</span><span class="mode-tag">Scenarios</span></div>
+          </div>
+          <div class="mode-card">
+            <div class="mode-icon">🛏️</div>
+            <h3 class="mode-name">BedWars</h3>
+            <p class="mode-desc">Classic BedWars with resource generators, item shops, and team upgrades. Protect your bed while destroying enemy beds. Modes include Solos, Duos, 3v3v3v3, and 4v4v4v4. Custom maps rotated weekly.</p>
+            <div class="mode-tags"><span class="mode-tag">Solo</span><span class="mode-tag">Duos</span><span class="mode-tag">3s</span><span class="mode-tag">4s</span></div>
+          </div>
+          <div class="mode-card">
+            <div class="mode-icon">🏝️</div>
+            <h3 class="mode-name">SkyWars</h3>
+            <p class="mode-desc">Spawn on a floating island with random loot. Bridge to other islands, fight opponents, and be the last one alive. Includes Normal and Insane modes with different loot tables. Soul system for collecting perks.</p>
+            <div class="mode-tags"><span class="mode-tag">Normal</span><span class="mode-tag">Insane</span><span class="mode-tag">Solo</span><span class="mode-tag">Duos</span></div>
+          </div>
+          <div class="mode-card">
+            <div class="mode-icon">🗡️</div>
+            <h3 class="mode-name">KitPvP</h3>
+            <p class="mode-desc">Free-for-all combat with over 15 unique kits. Earn coins from kills, unlock powerful kits, and dominate the arena. Killstreaks, bounties, and a deep progression system keep every fight rewarding.</p>
+            <div class="mode-tags"><span class="mode-tag">FFA</span><span class="mode-tag">15+ Kits</span><span class="mode-tag">Progression</span><span class="mode-tag">Bounties</span></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ==================== RULES PAGE ==================== -->
+  <div class="page" id="page-rules">
+    <div class="page-top">
+      <section class="section">
+        <div class="section-header">
+          <div class="section-tag">Server Guidelines</div>
+          <h2 class="section-title">Rules</h2>
+          <div class="glow-line"></div>
+          <p class="section-desc">By playing on EvaulxMC, you agree to follow these rules. Ignorance is not an excuse.</p>
+        </div>
+
+        <div class="rules-container">
+          <div class="rule-category">
+            <h3 class="rule-category-title">General Rules</h3>
+            <div class="rule-item">
+              <span class="rule-num">01</span>
+              <span class="rule-text">No hacking, cheating, or using modified clients that give an unfair advantage.</span>
+              <span class="rule-severity severity-perm">Perm Ban</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-num">02</span>
+              <span class="rule-text">No racism, sexism, homophobia, or any form of discrimination.</span>
+              <span class="rule-severity severity-ban">Ban</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-num">03</span>
+              <span class="rule-text">No spamming, flooding, or excessive use of caps in chat.</span>
+              <span class="rule-severity severity-warn">Mute</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-num">04</span>
+              <span class="rule-text">No advertising other servers, websites, or social media.</span>
+              <span class="rule-severity severity-ban">Ban</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-num">05</span>
+              <span class="rule-text">No impersonating staff members or other players.</span>
+              <span class="rule-severity severity-ban">Ban</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-num">06</span>
+              <span class="rule-text">No exploiting bugs or glitches. Report them to staff immediately.</span>
+              <span class="rule-severity severity-ban">Ban</span>
+            </div>
+          </div>
+
+          <div class="rule-category">
+            <h3 class="rule-category-title">Chat Rules</h3>
+            <div class="rule-item">
+              <span class="rule-num">07</span>
+              <span class="rule-text">Keep chat family-friendly. No excessive swearing or inappropriate content.</span>
+              <span class="rule-severity severity-warn">Mute</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-num">08</span>
+              <span class="rule-text">No sharing personal information of yourself or others.</span>
+              <span class="rule-severity severity-ban">Ban</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-num">09</span>
+              <span class="rule-text">No toxic behaviour, harassment, or targeted bullying.</span>
+              <span class="rule-severity severity-ban">Ban</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-num">10</span>
+              <span class="rule-text">Respect all players and staff. Treat others how you want to be treated.</span>
+              <span class="rule-severity severity-warn">Warn</span>
+            </div>
+          </div>
+
+          <div class="rule-category">
+            <h3 class="rule-category-title">Gameplay Rules</h3>
+            <div class="rule-item">
+              <span class="rule-num">11</span>
+              <span class="rule-text">No teaming in solo game modes unless explicitly allowed.</span>
+              <span class="rule-severity severity-warn">Warn</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-num">12</span>
+              <span class="rule-text">No intentionally stalling or delaying games.</span>
+              <span class="rule-severity severity-warn">Warn</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-num">13</span>
+              <span class="rule-text">No stat boosting, win trading, or manipulating rankings.</span>
+              <span class="rule-severity severity-perm">Perm Ban</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-num">14</span>
+              <span class="rule-text">No using alternate accounts to evade bans.</span>
+              <span class="rule-severity severity-perm">Perm Ban</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ==================== STAFF PAGE ==================== -->
+  <div class="page" id="page-staff">
+    <div class="page-top">
+      <section class="section">
+        <div class="section-header">
+          <div class="section-tag">Our Team</div>
+          <h2 class="section-title">Staff</h2>
+          <div class="glow-line"></div>
+          <p class="section-desc">The people behind EvaulxMC who keep everything running.</p>
+        </div>
+
+        <h4 class="staff-section-title">Leadership</h4>
+        <div class="staff-grid">
+          <div class="staff-card">
+            <div class="staff-avatar">
+              <img src="https://mc-heads.net/avatar/MHF_Steve/80" alt="Owner avatar">
+            </div>
+            <div class="staff-name">Ayman</div>
+            <div class="staff-role">Owner & Developer</div>
+          </div>
+        </div>
+
+        <h4 class="staff-section-title">Staff — Applications Open</h4>
+        <div class="staff-grid">
+          <div class="staff-card" style="border-style: dashed;">
+            <div class="staff-avatar" style="border-style: dashed; opacity: 0.5;">?</div>
+            <div class="staff-name" style="color: var(--text-muted);">Your name here</div>
+            <div class="staff-role">Apply on Discord</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ==================== STORE PAGE ==================== -->
+  <div class="page" id="page-store">
+    <div class="page-top">
+      <section class="section">
+        <div class="section-header">
+          <div class="section-tag">Support the Server</div>
+          <h2 class="section-title">Store</h2>
+          <div class="glow-line"></div>
+          <p class="section-desc">Grab a rank to unlock exclusive perks and support EvaulxMC's development.</p>
+        </div>
+
+        <div class="store-grid">
+          <div class="store-card">
+            <div class="store-card-body">
+              <div class="store-rank-name" style="color: #22d3ee;">VIP</div>
+              <div class="store-price">£4.99 <span>/ lifetime</span></div>
+              <ul class="store-perks">
+                <li>Coloured name in chat</li>
+                <li>Access to /fly in hub</li>
+                <li>Priority queue</li>
+                <li>2x coin multiplier</li>
+                <li>Exclusive VIP kit in KitPvP</li>
+              </ul>
+              <a href="#" class="store-btn">Coming Soon</a>
+            </div>
+          </div>
+
+          <div class="store-card featured">
+            <div class="store-card-badge">Most Popular</div>
+            <div class="store-card-body">
+              <div class="store-rank-name" style="color: var(--purple-bright);">MVP</div>
+              <div class="store-price">£9.99 <span>/ lifetime</span></div>
+              <ul class="store-perks">
+                <li>Everything in VIP</li>
+                <li>Custom join messages</li>
+                <li>3x coin multiplier</li>
+                <li>Exclusive MVP kits</li>
+                <li>Particle effects</li>
+                <li>Nickname command</li>
+              </ul>
+              <a href="#" class="store-btn">Coming Soon</a>
+            </div>
+          </div>
+
+          <div class="store-card">
+            <div class="store-card-body">
+              <div class="store-rank-name" style="color: #f59e0b;">MVP+</div>
+              <div class="store-price">£19.99 <span>/ lifetime</span></div>
+              <ul class="store-perks">
+                <li>Everything in MVP</li>
+                <li>5x coin multiplier</li>
+                <li>All kits unlocked</li>
+                <li>Custom gadgets</li>
+                <li>Private arenas</li>
+                <li>Exclusive MVP+ cosmetics</li>
+                <li>Priority support</li>
+              </ul>
+              <a href="#" class="store-btn">Coming Soon</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-logo">EvaulxMC</div>
+    <p class="footer-text">© 2026 EvaulxMC. Not affiliated with Mojang Studios.</p>
+    <ul class="footer-links">
+      <li><a href="#">Discord</a></li>
+      <li><a href="#">Twitter</a></li>
+      <li><a href="#">Store</a></li>
+    </ul>
+  </footer>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">IP Copied!</div>
+
+<script>
+// PARTICLE BACKGROUND
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+let mouse = { x: 0, y: 0 };
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+document.addEventListener('mousemove', (e) => {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+});
+
+class Particle {
+  constructor() {
+    this.reset();
+  }
+  reset() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.size = Math.random() * 2 + 0.5;
+    this.speedX = (Math.random() - 0.5) * 0.4;
+    this.speedY = (Math.random() - 0.5) * 0.4;
+    this.opacity = Math.random() * 0.5 + 0.1;
+    this.color = Math.random() > 0.7 ? '34, 211, 238' : '124, 58, 237';
+  }
+  update() {
+    this.x += this.speedX;
+    this.y += this.speedY;
+    if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+      this.reset();
+    }
+  }
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
+    ctx.fill();
+  }
+}
+
+for (let i = 0; i < 80; i++) {
+  particles.push(new Particle());
+}
+
+function connectParticles() {
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 120) {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(124, 58, 237, ${0.08 * (1 - dist / 120)})`;
+        ctx.lineWidth = 0.5;
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => { p.update(); p.draw(); });
+  connectParticles();
+  requestAnimationFrame(animate);
+}
+animate();
+
+// PAGE NAVIGATION
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.classList.remove('active');
+    if (a.dataset.page === page) a.classList.add('active');
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.getElementById('navLinks').classList.remove('open');
+}
+
+// MOBILE MENU
+function toggleMenu() {
+  document.getElementById('navLinks').classList.toggle('open');
+}
+
+// COPY IP
+function copyIP(e) {
+  e.preventDefault();
+  navigator.clipboard.writeText('play.evaulxmc.net').then(() => {
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  });
+}
+</script>
+</body>
+</html>
